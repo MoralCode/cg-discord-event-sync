@@ -15,6 +15,8 @@ from dbschema import mapper_registry, CalendarSubscription
 
 from campusgroups import *
 
+from icalendar import Calendar, Event
+
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='$', intents=intents)
@@ -91,10 +93,47 @@ def get_subscription(group_id, server_id, dbsession=None):
 	return dbsession.query(CalendarSubscription).filter(CalendarSubscription.group_id== group_id).filter(CalendarSubscription.server_id == server_id)
 
 
+def get_event_id_from_ical(component):
+	return component.get('summary')# + component.get('dtstart').dt
+
+def get_event_id_from_scheduled_event(event):
+	return event.name
+
 @bot.command()
 async def sync(ctx, *args):
 	logger.info('sync')
-	await ctx.message.guild.create_scheduled_event(name="hello", description="this is a test", start_time=datetime.datetime.fromisoformat("2022-10-05T10:00:00-09:00"), end_time=datetime.datetime.fromisoformat("2022-10-05T14:00:00-09:00"), entity_type=discord.EntityType.external, location="test")
+	ctx.send("Syncronizing events...")
+	with Session(engine) as dbsession:
+		subs = dbsession.query(CalendarSubscription).where(CalendarSubscription.server_id == ctx.message.guild.id).all()
+
+		logger.info("beginning calendar sync")
+		logger.debug("fetching existing discord events")
+
+		events_scheduled = await ctx.message.guild.fetch_scheduled_events()
+		logger.debug("filtering existing discord events")
+		events_scheduled = filter(lambda e: e.creator.id==bot.user.id, events_scheduled)
+
+		logger.debug("converting existing discord events to id form")
+		existing_event_ids = [get_event_id_from_scheduled_event(e) for e in events_scheduled]
+
+
+		logger.debug("fetching new campusgroups events")
+
+		for sub in subs:
+			ics_url = get_ics_url_for_group_id(sub.group.identifier)
+
+			calendar = requests.get(ics_url)
+			caldata = Calendar.from_ical(calendar.content)
+			for component in caldata.walk("VEVENT"):
+				if get_event_id_from_ical(component) not in existing_event_ids:
+					logger.debug("found new event " +component.get('summary'))
+
+					if component.get('dtstart').dt < datetime.datetime().now():
+						logger.debug("event too old")
+						continue
+
+					logger.debug(component.get('dtstart').dt)
+					await ctx.message.guild.create_scheduled_event(name=component.get('summary'), description=component.get('description'), start_time=component.get('dtstart').dt, end_time=component.get('dtend').dt, entity_type=discord.EntityType.external, location=component.get('location'))
 
 @bot.command(name="list")
 async def list_subs(ctx, *args):
