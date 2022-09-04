@@ -137,8 +137,6 @@ async def sync(ctx, *args):
 					if starttime < now:
 						logger.debug("event too old")
 						continue
-
-					logger.debug(component.get('dtstart').dt)
 					await ctx.message.guild.create_scheduled_event(name=component.get('summary'), description=component.get('description'), start_time=component.get('dtstart').dt, end_time=component.get('dtend').dt, entity_type=discord.EntityType.external, location=component.get('location'))
 	logger.debug("done")
 	await ctx.send("Done synchronizing events.")
@@ -154,7 +152,7 @@ async def list_subs(ctx, *args):
 @bot.command()
 async def subscribe(ctx, *args):
 	logger.info('sub')
-	
+
 	if len(args) < 0:
 		await ctx.send("you need to specify which CampusGroups group you want so subscribe to")
 		return
@@ -168,12 +166,9 @@ async def subscribe(ctx, *args):
 		
 		if(await check_groups_size(ctx,groups,queryarg)):
 			group_id = groups[0].identifier
-			logger.debug(group_id)
-			logger.debug(ctx.message.guild.id)
-
 			# https://stackoverflow.com/a/32952421/
 			exists = get_subscription(group_id, ctx.message.guild.id, dbsession=dbsession).scalar() is not None
-			
+
 			if not exists:
 				newsub = CalendarSubscription()
 				newsub.group = dbsession.query(CampusGroups).where(CampusGroups.identifier == group_id).scalar()
@@ -248,6 +243,7 @@ if __name__ == '__main__':
 		print(db_url)
 	engine = create_engine(db_url, future=True)#, echo=True
 
+	
 	if args.createdb:
 		mapper_registry.metadata.create_all(engine)
 
@@ -271,3 +267,5 @@ if __name__ == '__main__':
 
 	else:
 		bot.run(os.getenv('DISCORD_TOKEN'))
+
+
