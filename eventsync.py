@@ -13,21 +13,23 @@ from sqlalchemy.orm import Session
 from sqlalchemy import MetaData
 from dbschema import mapper_registry
 
-client = discord.Client()
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix='$', intents=intents)
+# client = discord.Client()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-COMMAND_PREFIX="$cg"
+COMMAND_PREFIX="cg"
 COOKIES_FILE = "cookies.txt"
 
 
 session = requests.Session() 
 
-@client.event
+@bot.event
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(client))
 
-@client.event
+@bot.event
 async def on_message(message):
 	if message.author == client.user:
 		return
@@ -73,4 +75,4 @@ if __name__ == '__main__':
 		command.stamp(alembic_cfg, "head")
 
 
-	client.run(os.getenv('DISCORD_TOKEN'))
+	bot.run(os.getenv('DISCORD_TOKEN'))
