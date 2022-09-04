@@ -59,15 +59,15 @@ if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser(description='runs a discord bot that can sync campusgroups events with discord events')
 	parser.add_argument('database', default="cgsubscriptions.db",
-						help='the path to the sqlite database to use. defaults to "cgsubscriptions.db" in the current directory')
+		help='the path to the sqlite database to use. defaults to "cgsubscriptions.db" in the current directory')
 	# parser.add_argument('--cached', action='store_true',
 	# 					help='whether caching should be used')
 	parser.add_argument('--show-cookies', action='store_true',
-						help='whether to print the session id in the cookies')
+		help='whether to print the session id in the cookies')
 	parser.add_argument('--createdb', action='store_true',
-						help='whether to create a new DB')
+		help='whether to scrape and import all groups from campusgroups')
 	parser.add_argument('--debug', action='store_true',
-						help='print debugging output')
+		help='print debugging output')
 	args = parser.parse_args()
 
 
