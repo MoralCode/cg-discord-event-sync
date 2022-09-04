@@ -10,6 +10,7 @@ requests-cache = "*"
 "discord.py" = "*"
 sqlalchemy = "*"
 alembic = "*"
+icalendar = "*"
 
 [dev-packages]
 
