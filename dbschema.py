@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
 from sqlalchemy.orm import registry
+from sqlalchemy import Table
+from sqlalchemy import Column
+from sqlalchemy import Integer
 
 
 mapper_registry = registry()
