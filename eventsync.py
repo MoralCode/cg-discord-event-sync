@@ -53,7 +53,7 @@ def resolve_group_argument(queryarg: str, dbsession=None) -> int:
 		groups = dbsession.query(CampusGroups).filter(CampusGroups.name.contains(queryarg)).all()
 		return groups
 		
-async def check_groups_size(ctx, groups) -> bool:
+async def check_groups_size(ctx, groups, queryarg) -> bool:
 	"""validate the number of groups returned by the query and inform the user
 	if the expected number was not received 
 
@@ -74,7 +74,7 @@ async def check_groups_size(ctx, groups) -> bool:
 		await ctx.send(grouplistmsg)
 		return False
 	elif len(groups) == 0:
-		await ctx.send("search query {} returned no groups. Please try another search term" % queryarg)
+		await ctx.send("search query {} returned no groups. Please try another search term".format(queryarg))
 		return False
 
 	return True
@@ -105,7 +105,7 @@ async def subscribe(ctx, *args):
 		groups = resolve_group_argument(queryarg, dbsession=dbsession)
 		logger.info(groups)
 		
-		if(check_groups_size(ctx,groups)):
+		if(await check_groups_size(ctx,groups,queryarg)):
 			group_id = groups[0].identifier
 			logger.debug(group_id)
 			logger.debug(ctx.message.guild.id)
@@ -139,7 +139,7 @@ async def unsubscribe(ctx, *args):
 		groups = resolve_group_argument(queryarg, dbsession=dbsession)
 		logger.info(groups)
 		
-		if(check_groups_size(ctx,groups)):
+		if(await check_groups_size(ctx,groups, queryarg)):
 			group_id = groups[0].identifier
 			
 			sub = get_subscription(group_id, ctx.message.guild.id, dbsession=dbsession).scalar()
