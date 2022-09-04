@@ -94,7 +94,7 @@ def get_subscription(group_id, server_id, dbsession=None):
 @bot.command()
 async def sync(ctx, *args):
 	logger.info('sync')
-	await ctx.send("sync")
+	await ctx.message.guild.create_scheduled_event(name="hello", description="this is a test", start_time=datetime.datetime.fromisoformat("2022-10-05T10:00:00-09:00"), end_time=datetime.datetime.fromisoformat("2022-10-05T14:00:00-09:00"), entity_type=discord.EntityType.external, location="test")
 
 @bot.command(name="list")
 async def list_subs(ctx, *args):
