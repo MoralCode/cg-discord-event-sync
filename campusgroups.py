@@ -27,3 +27,7 @@ def get_all_campus_groups():
 		cg.name = name
 		all_groups.append(cg)
 	return all_groups
+
+
+def get_ics_url_for_group_id(group_id):
+	return "https://campusgroups.rit.edu/ical/ical_club_{}.ics".format(group_id)
