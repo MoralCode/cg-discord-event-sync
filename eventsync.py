@@ -4,6 +4,14 @@ import asyncio
 import aiohttp
 import logging
 import argparse
+
+client = discord.Client()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+COMMAND_PREFIX="$cg"
+COOKIES_FILE = "cookies.txt"
+
 @client.event
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(client))
