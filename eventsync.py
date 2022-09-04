@@ -96,6 +96,13 @@ async def sync(ctx, *args):
 	logger.info('sync')
 	await ctx.send("sync")
 
+@bot.command(name="list")
+async def list_subs(ctx, *args):
+	logger.info('list')
+	with Session(engine) as dbsession:
+		groups = dbsession.query(CalendarSubscription).where(CalendarSubscription.server_id == ctx.message.guild.id).all()
+		await ctx.send("***You are subscribed to the following groups:*** \n" + generate_groups_list([g.group for g in groups]))
+
 @bot.command()
 async def subscribe(ctx, *args):
 	logger.info('sub')
