@@ -128,7 +128,7 @@ async def subscribe(ctx, *args):
 			
 			if not exists:
 				newsub = CalendarSubscription()
-				newsub.group_id = group_id
+				newsub.group = dbsession.query(CampusGroups).where(CampusGroups.identifier == group_id).scalar()
 				newsub.server_id = ctx.message.guild.id 
 				dbsession.add(newsub)
 				dbsession.commit()
