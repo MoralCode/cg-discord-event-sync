@@ -75,6 +75,7 @@ if __name__ == '__main__':
 		from alembic.config import Config
 		from alembic import command
 		alembic_cfg = Config("./alembic.ini")
+		alembic_cfg.set_main_option("sqlalchemy.url", db_url)
 		command.stamp(alembic_cfg, "head")
 
 
