@@ -53,6 +53,31 @@ def resolve_group_argument(queryarg: str, dbsession=None) -> int:
 		groups = dbsession.query(CampusGroups).filter(CampusGroups.name.contains(queryarg)).all()
 		return groups
 		
+async def check_groups_size(ctx, groups) -> bool:
+	"""validate the number of groups returned by the query and inform the user
+	if the expected number was not received 
+
+	Args:
+		ctx (_type_): the discord message context for sending messages to the user
+		groups (_type_): the list of groups returned by the query
+
+	Returns:
+		bool: True if group size was valid, False if it wasnt and the user was notified
+	"""
+	if len(groups) > 1:
+		await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
+		groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
+		groupList = "\n - ".join(groupList)
+		grouplistmsg = "***groups returned:*** \n" + " - " + groupList
+		if len(grouplistmsg) > 2000:
+			grouplistmsg = grouplistmsg[:1500] + "\n ..."
+		await ctx.send(grouplistmsg)
+		return False
+	elif len(groups) == 0:
+		await ctx.send("search query {} returned no groups. Please try another search term" % queryarg)
+		return False
+
+	return True
 
 @bot.command()
 async def sync(ctx, *args):
@@ -69,27 +94,18 @@ async def subscribe(ctx, *args):
 		logger.info("subscription arg: " + queryarg)
 		with Session(engine) as dbsession:
 			groups = resolve_group_argument(queryarg, dbsession=dbsession)
-			logger.debug(groups)
-			if len(groups) > 1:
-				await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
-				groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
-				groupList = "\n - ".join(groupList)
-				grouplistmsg = "***groups returned:*** \n" + " - " + groupList
-				if len(grouplistmsg) > 2000:
-					grouplistmsg = grouplistmsg[:1500] + "\n ..."
-				await ctx.send(grouplistmsg)
-			elif len(groups) == 0:
-				await ctx.send("search query {} returned no groups. Please try another search term" % queryarg)
-
-			group_id = groups[0].identifier
-			logger.debug(group_id)
-			logger.debug(ctx.message.guild.id)
-			newsub = CalendarSubscription()
-			newsub.group_id = group_id
-			newsub.server_id = ctx.message.guild.id 
-			dbsession.add(newsub)
-			dbsession.commit()
-			await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
+			logger.info(groups)
+			
+			if(check_groups_size(ctx,groups)):
+				group_id = groups[0].identifier
+				logger.debug(group_id)
+				logger.debug(ctx.message.guild.id)
+				newsub = CalendarSubscription()
+				newsub.group_id = group_id
+				newsub.server_id = ctx.message.guild.id 
+				dbsession.add(newsub)
+				dbsession.commit()
+				await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
 	else:
 		await ctx.send("you need to specify which CampusGroups group you want so subscribe to")
 
