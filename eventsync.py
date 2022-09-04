@@ -57,7 +57,7 @@ def resolve_group_argument(queryarg: str, dbsession=None) -> int:
 def generate_groups_list(groups) -> str:
 	groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
 	groupList = "\n - ".join(groupList)
-	grouplistmsg = "***groups returned:*** \n" + " - " + groupList
+	grouplistmsg = " - " + groupList
 	if len(grouplistmsg) > 2000:
 		grouplistmsg = grouplistmsg[:1500] + "\n ..."
 	
@@ -77,7 +77,7 @@ async def check_groups_size(ctx, groups, queryarg) -> bool:
 	if len(groups) > 1:
 		await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
 		
-		await ctx.send(generate_groups_list(groups))
+		await ctx.send("***groups returned:*** \n" + generate_groups_list(groups))
 		return False
 	elif len(groups) == 0:
 		await ctx.send("search query {} returned no groups. Please try another search term".format(queryarg))
