@@ -79,6 +79,12 @@ async def check_groups_size(ctx, groups) -> bool:
 
 	return True
 
+def get_subscription(group_id, server_id, dbsession=None):
+	if dbsession is None:
+		raise ValueError("dbsession argument should not be null when looking up a subscription")
+	return dbsession.query(CalendarSubscription).filter(CalendarSubscription.group_id== group_id).filter(CalendarSubscription.server_id == server_id)
+
+
 @bot.command()
 async def sync(ctx, *args):
 	logger.info('sync')
@@ -103,12 +109,19 @@ async def subscribe(ctx, *args):
 			group_id = groups[0].identifier
 			logger.debug(group_id)
 			logger.debug(ctx.message.guild.id)
-			newsub = CalendarSubscription()
-			newsub.group_id = group_id
-			newsub.server_id = ctx.message.guild.id 
-			dbsession.add(newsub)
-			dbsession.commit()
-			await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
+
+			# https://stackoverflow.com/a/32952421/
+			exists = get_subscription(group_id, ctx.message.guild.id, dbsession=dbsession).scalar() is not None
+			
+			if not exists:
+				newsub = CalendarSubscription()
+				newsub.group_id = group_id
+				newsub.server_id = ctx.message.guild.id 
+				dbsession.add(newsub)
+				dbsession.commit()
+				await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
+			else:
+				await ctx.send("Subscription to {} (id: {}) already exists".format(groups[0].name, groups[0].identifier))
 		
 
 
