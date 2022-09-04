@@ -58,7 +58,8 @@ if __name__ == '__main__':
 	global engine
 
 	parser = argparse.ArgumentParser(description='runs a discord bot that can sync campusgroups events with discord events')
-	parser.add_argument('database', default="cgsubscriptions.db",
+	parser.add_argument('--database',
+		default="cgsubscriptions.db",
 		help='the path to the sqlite database to use. defaults to "cgsubscriptions.db" in the current directory')
 	# parser.add_argument('--cached', action='store_true',
 	# 					help='whether caching should be used')
