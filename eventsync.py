@@ -52,6 +52,16 @@ def resolve_group_argument(queryarg: str, dbsession=None) -> int:
 		
 		groups = dbsession.query(CampusGroups).filter(CampusGroups.name.contains(queryarg)).all()
 		return groups
+
+
+def generate_groups_list(groups) -> str:
+	groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
+	groupList = "\n - ".join(groupList)
+	grouplistmsg = "***groups returned:*** \n" + " - " + groupList
+	if len(grouplistmsg) > 2000:
+		grouplistmsg = grouplistmsg[:1500] + "\n ..."
+	
+	return grouplistmsg
 		
 async def check_groups_size(ctx, groups, queryarg) -> bool:
 	"""validate the number of groups returned by the query and inform the user
@@ -66,12 +76,8 @@ async def check_groups_size(ctx, groups, queryarg) -> bool:
 	"""
 	if len(groups) > 1:
 		await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
-		groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
-		groupList = "\n - ".join(groupList)
-		grouplistmsg = "***groups returned:*** \n" + " - " + groupList
-		if len(grouplistmsg) > 2000:
-			grouplistmsg = grouplistmsg[:1500] + "\n ..."
-		await ctx.send(grouplistmsg)
+		
+		await ctx.send(generate_groups_list(groups))
 		return False
 	elif len(groups) == 0:
 		await ctx.send("search query {} returned no groups. Please try another search term".format(queryarg))
