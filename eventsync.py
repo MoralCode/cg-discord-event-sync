@@ -128,7 +128,30 @@ async def subscribe(ctx, *args):
 @bot.command()
 async def unsubscribe(ctx, *args):
 	logger.info('usub')
-	await ctx.send("unsubscribe")
+	if len(args) < 0:
+		await ctx.send("you need to specify which CampusGroups group you want so unsubscribe from")
+		return
+		
+	queryarg = " ".join(args)
+
+	logger.info("unsubscription arg: " + queryarg)
+	with Session(engine) as dbsession:
+		groups = resolve_group_argument(queryarg, dbsession=dbsession)
+		logger.info(groups)
+		
+		if(check_groups_size(ctx,groups)):
+			group_id = groups[0].identifier
+			
+			sub = get_subscription(group_id, ctx.message.guild.id, dbsession=dbsession).scalar()
+			logger.debug(sub)
+			
+			if sub is not None:
+				sub.delete()
+				dbsession.commit()
+				await ctx.send("Successfuly unsubscribed from {} (id: {})".format(groups[0].name, groups[0].identifier))
+			else:
+				await ctx.send("Subscription to {} (id: {}) does not exist".format(groups[0].name, groups[0].identifier))
+			
 
 # @bot.command()
 # async def help(ctx, arg):
