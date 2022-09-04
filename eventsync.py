@@ -87,27 +87,29 @@ async def sync(ctx, *args):
 @bot.command()
 async def subscribe(ctx, *args):
 	logger.info('sub')
-	if len(args) > 0:
-		
-		queryarg = " ".join(args)
-
-		logger.info("subscription arg: " + queryarg)
-		with Session(engine) as dbsession:
-			groups = resolve_group_argument(queryarg, dbsession=dbsession)
-			logger.info(groups)
-			
-			if(check_groups_size(ctx,groups)):
-				group_id = groups[0].identifier
-				logger.debug(group_id)
-				logger.debug(ctx.message.guild.id)
-				newsub = CalendarSubscription()
-				newsub.group_id = group_id
-				newsub.server_id = ctx.message.guild.id 
-				dbsession.add(newsub)
-				dbsession.commit()
-				await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
-	else:
+	
+	if len(args) < 0:
 		await ctx.send("you need to specify which CampusGroups group you want so subscribe to")
+		return
+		
+	queryarg = " ".join(args)
+
+	logger.info("subscription arg: " + queryarg)
+	with Session(engine) as dbsession:
+		groups = resolve_group_argument(queryarg, dbsession=dbsession)
+		logger.info(groups)
+		
+		if(check_groups_size(ctx,groups)):
+			group_id = groups[0].identifier
+			logger.debug(group_id)
+			logger.debug(ctx.message.guild.id)
+			newsub = CalendarSubscription()
+			newsub.group_id = group_id
+			newsub.server_id = ctx.message.guild.id 
+			dbsession.add(newsub)
+			dbsession.commit()
+			await ctx.send("Successfuly subscribed to {} (id: {})".format(groups[0].name, groups[0].identifier))
+		
 
 
 @bot.command()
