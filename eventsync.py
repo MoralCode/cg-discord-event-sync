@@ -25,6 +25,8 @@ COOKIES_FILE = "cookies.txt"
 
 session = requests.Session() 
 
+
+
 @bot.event
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(client))
@@ -47,6 +49,9 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
+
+	global engine
+
 	parser = argparse.ArgumentParser(description='runs a discord bot that can sync campusgroups events with discord events')
 	parser.add_argument('database', default="cgsubscriptions.db",
 						help='the path to the sqlite database to use. defaults to "cgsubscriptions.db" in the current directory')
@@ -59,6 +64,7 @@ if __name__ == '__main__':
 	parser.add_argument('--debug', action='store_true',
 						help='print debugging output')
 	args = parser.parse_args()
+
 
 
 	# see https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#connect-strings 
