@@ -3,6 +3,7 @@ import os
 import asyncio
 import aiohttp
 import logging
+import argparse
 @client.event
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(client))
@@ -22,4 +23,21 @@ async def on_message(message):
 		await message.channel.send("a full list of commands can be found at https://github.com/MoralCode/cg-discord-event-sync/")
 
 
-client.run(os.getenv('DISCORD_TOKEN'))
+
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='runs a discord bot that can sync campusgroups events with discord events')
+	parser.add_argument('database', default="cgsubscriptions.db",
+						help='the path to the sqlite database to use. defaults to "cgsubscriptions.db" in the current directory')
+	# parser.add_argument('--cached', action='store_true',
+	# 					help='whether caching should be used')
+	parser.add_argument('--show-cookies', action='store_true',
+						help='whether to print the session id in the cookies')
+	parser.add_argument('--createdb', action='store_true',
+						help='whether to create a new DB')
+	parser.add_argument('--debug', action='store_true',
+						help='print debugging output')
+	args = parser.parse_args()
+
+
+	client.run(os.getenv('DISCORD_TOKEN'))
