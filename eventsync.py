@@ -34,6 +34,26 @@ session = requests.Session()
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(bot))
 
+def resolve_group_argument(queryarg: str, dbsession=None) -> int:
+	"""takes a group argument (either a number or a string) and tries to resolve
+	it to the group id.
+
+	Returns a (boolean, List[String]) tuple indicating whether there was an error
+	"""
+
+	responsemsg = []
+	if queryarg.isnumeric():
+		groups = dbsession.query(CampusGroups).where(CampusGroups.identifier== int(queryarg)).all()
+		return groups
+	else:
+
+		if dbsession is None:
+			raise ValueError("dbsession argument should not be null when trying to resolve group ID")
+		
+		groups = dbsession.query(CampusGroups).filter(CampusGroups.name.contains(queryarg)).all()
+		return groups
+		
+
 @bot.command()
 async def sync(ctx, *args):
 	logger.info('sync')
@@ -48,23 +68,20 @@ async def subscribe(ctx, *args):
 
 		logger.info("subscription arg: " + queryarg)
 		with Session(engine) as dbsession:
-			if queryarg.isnumeric():
-				group_id = int(queryarg)
-			else:
-				groups = dbsession.query(CampusGroups).filter(CampusGroups.name.contains(queryarg)).all()
-				logger.debug(groups)
-				if len(groups) > 1:
-					await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
-					groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
-					groupList = "\n - ".join(groupList)
-					grouplistmsg = "***groups returned:*** \n" + " - " + groupList
-					if len(grouplistmsg) > 2000:
-						grouplistmsg = grouplistmsg[:1500] + "\n ..."
-					await ctx.send(grouplistmsg)
-				elif len(groups) == 0:
-					await ctx.send("search query {} returned no groups. Please try another search term" % queryarg)
+			groups = resolve_group_argument(queryarg, dbsession=dbsession)
+			logger.debug(groups)
+			if len(groups) > 1:
+				await ctx.send("search query \"{}\" returned more than one group. Please try another search term or enclose the group name in quotes".format(queryarg))
+				groupList = [g.name + " (" + str(g.identifier) + ")"  for g in groups]
+				groupList = "\n - ".join(groupList)
+				grouplistmsg = "***groups returned:*** \n" + " - " + groupList
+				if len(grouplistmsg) > 2000:
+					grouplistmsg = grouplistmsg[:1500] + "\n ..."
+				await ctx.send(grouplistmsg)
+			elif len(groups) == 0:
+				await ctx.send("search query {} returned no groups. Please try another search term" % queryarg)
 
-				group_id = groups[0].identifier
+			group_id = groups[0].identifier
 			logger.debug(group_id)
 			logger.debug(ctx.message.guild.id)
 			newsub = CalendarSubscription()
