@@ -11,7 +11,9 @@ from sqlalchemy import create_engine
 from constants import SQLITE_DB_PREFIX
 from sqlalchemy.orm import Session
 from sqlalchemy import MetaData
-from dbschema import mapper_registry
+from dbschema import mapper_registry, CalendarSubscription
+
+from campusgroups import *
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -66,6 +68,8 @@ if __name__ == '__main__':
 	parser.add_argument('--show-cookies', action='store_true',
 		help='whether to print the session id in the cookies')
 	parser.add_argument('--createdb', action='store_true',
+		help='whether to create a new DB')
+	parser.add_argument('--importgroups', action='store_true',
 		help='whether to scrape and import all groups from campusgroups')
 	parser.add_argument('--debug', action='store_true',
 		help='print debugging output')
@@ -91,5 +95,15 @@ if __name__ == '__main__':
 		alembic_cfg.set_main_option("sqlalchemy.url", db_url)
 		command.stamp(alembic_cfg, "head")
 	
+	elif args.importgroups:
+		all_groups = get_all_campus_groups()
+		with Session(engine) as dbsession:
+			for group in all_groups:
+				if args.debug:
+					logger.debug(group)
+				dbsession.merge(group)
+			dbsession.commit()
+
+
 	else:
 		bot.run(os.getenv('DISCORD_TOKEN'))
