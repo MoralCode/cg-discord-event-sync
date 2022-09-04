@@ -16,7 +16,7 @@ class CalendarSubscription:
         "calendar_subscription",
         mapper_registry.metadata,
         Column("cg_group_id", Integer, primary_key=True),
-        Column("discord_server_id", Integer),
+        Column("discord_server_id", Integer, primary_key=True),
     )
 	cg_group_id:int
 	discord_server_id: int
