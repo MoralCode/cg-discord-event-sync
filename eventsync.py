@@ -6,6 +6,12 @@ import aiohttp
 import logging
 import argparse
 
+from sqlalchemy import create_engine
+from constants import SQLITE_DB_PREFIX
+from sqlalchemy.orm import Session
+from sqlalchemy import MetaData
+from dbschema import mapper_registry
+
 client = discord.Client()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -50,6 +56,20 @@ if __name__ == '__main__':
 	parser.add_argument('--debug', action='store_true',
 						help='print debugging output')
 	args = parser.parse_args()
+
+
+	# see https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#connect-strings 
+	engine = create_engine(SQLITE_DB_PREFIX + args.database, future=True)#, echo=True
+
+	if args.createdb:
+		mapper_registry.metadata.create_all(engine)
+
+		# then, load the Alembic configuration and generate the
+		# version table, "stamping" it with the most recent rev:
+		from alembic.config import Config
+		from alembic import command
+		alembic_cfg = Config("./alembic.ini")
+		command.stamp(alembic_cfg, "head")
 
 
 	client.run(os.getenv('DISCORD_TOKEN'))
