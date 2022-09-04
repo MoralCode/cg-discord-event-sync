@@ -32,21 +32,25 @@ session = requests.Session()
 async def on_ready():
 	logger.info('We have logged in as {0.user}'.format(bot))
 
-@bot.event
-async def on_message(message):
-	if message.author == client.user:
-		return
+@bot.command()
+async def sync(ctx, *args):
+	logger.info('sync')
+	await ctx.send("sync")
 
-	if message.content.startswith(COMMAND_PREFIX + ' sync'):
-		pass
-	elif message.content.startswith(COMMAND_PREFIX + ' subscribe'):
-		pass
-	elif message.content.startswith(COMMAND_PREFIX + ' unsubscribe'):
-		pass
-	elif message.content.startswith(COMMAND_PREFIX + ' help'):
-		await message.channel.send("a full list of commands can be found at https://github.com/MoralCode/cg-discord-event-sync/")
+@bot.command()
+async def subscribe(ctx, *args):
+	logger.info('sub')
+	await ctx.send("subscribe")
 
 
+@bot.command()
+async def unsubscribe(ctx, *args):
+	logger.info('usub')
+	await ctx.send("unsubscribe")
+
+# @bot.command()
+# async def help(ctx, arg):
+#     await ctx.send("a full list of commands can be found at https://github.com/MoralCode/cg-discord-event-sync/")
 
 
 if __name__ == '__main__':
