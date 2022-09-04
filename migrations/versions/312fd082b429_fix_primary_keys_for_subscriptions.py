@@ -22,11 +22,17 @@ def upgrade() -> None:
         batch_op.alter_column('discord_server_id',
                existing_type=sa.INTEGER(),
                nullable=False)
+        batch_op.alter_column('cg_group_id',
+               existing_type=sa.INTEGER(),
+               nullable=False)
 
 
 def downgrade() -> None:
     with op.batch_alter_table('calendar_subscription', schema=None) as batch_op:
         # batch_op.add_column(sa.Column('street', sa.String(length=50), nullable=True))
         batch_op.alter_column('discord_server_id',
+               existing_type=sa.INTEGER(),
+               nullable=True)
+        batch_op.alter_column('cg_group_id',
                existing_type=sa.INTEGER(),
                nullable=True)
