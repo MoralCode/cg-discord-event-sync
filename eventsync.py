@@ -77,6 +77,6 @@ if __name__ == '__main__':
 		alembic_cfg = Config("./alembic.ini")
 		alembic_cfg.set_main_option("sqlalchemy.url", db_url)
 		command.stamp(alembic_cfg, "head")
-
-
-	bot.run(os.getenv('DISCORD_TOKEN'))
+	
+	else:
+		bot.run(os.getenv('DISCORD_TOKEN'))
