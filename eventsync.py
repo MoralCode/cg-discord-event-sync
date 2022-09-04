@@ -6,6 +6,8 @@ import asyncio
 import aiohttp
 import logging
 import argparse
+import datetime
+from datetime import timezone
 
 from sqlalchemy import create_engine
 from constants import SQLITE_DB_PREFIX
@@ -128,7 +130,11 @@ async def sync(ctx, *args):
 				if get_event_id_from_ical(component) not in existing_event_ids:
 					logger.debug("found new event " +component.get('summary'))
 
-					if component.get('dtstart').dt < datetime.datetime().now():
+					starttime = component.get('dtstart').dt
+					
+					now = datetime.datetime.now(timezone.utc)
+					
+					if starttime < now:
 						logger.debug("event too old")
 						continue
 
