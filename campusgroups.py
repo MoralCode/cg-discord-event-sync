@@ -22,5 +22,8 @@ def get_all_campus_groups():
 		identifier = data[-1].find("a")["href"]
 		x = re.search("ical_club_[0-9]*\.ics", identifier) 
 		identifier = int("".join(filter(str.isdigit, x[0])))
-		all_groups.append(CampusGroups(identifier, name))
+		cg = CampusGroups()
+		cg.identifier = identifier
+		cg.name = name
+		all_groups.append(cg)
 	return all_groups
