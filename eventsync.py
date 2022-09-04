@@ -1,3 +1,4 @@
+import requests
 import discord
 import os
 import asyncio
@@ -11,6 +12,9 @@ logger = logging.getLogger()
 
 COMMAND_PREFIX="$cg"
 COOKIES_FILE = "cookies.txt"
+
+
+session = requests.Session() 
 
 @client.event
 async def on_ready():
