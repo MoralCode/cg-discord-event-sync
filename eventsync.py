@@ -14,6 +14,7 @@ from sqlalchemy import MetaData
 from dbschema import mapper_registry
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix='$', intents=intents)
 # client = discord.Client()
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +30,7 @@ session = requests.Session()
 
 @bot.event
 async def on_ready():
-	logger.info('We have logged in as {0.user}'.format(client))
+	logger.info('We have logged in as {0.user}'.format(bot))
 
 @bot.event
 async def on_message(message):
