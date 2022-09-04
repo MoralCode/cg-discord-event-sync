@@ -6,7 +6,8 @@ import requests
 import re
 from dbschema import CampusGroups
 
-CG_ALL_GROUPS_LIST_URL="https://campusgroups.rit.edu/ics_helper"
+CG_DOMAIN = "https://campusgroups.rit.edu"
+CG_ALL_GROUPS_LIST_URL= CG_DOMAIN + "/ics_helper"
 
 def get_all_campus_groups():
 	result = requests.get(CG_ALL_GROUPS_LIST_URL)
@@ -30,4 +31,4 @@ def get_all_campus_groups():
 
 
 def get_ics_url_for_group_id(group_id):
-	return "https://campusgroups.rit.edu/ical/ical_club_{}.ics".format(group_id)
+	return CG_DOMAIN + "/ical/ical_club_{}.ics".format(group_id)
