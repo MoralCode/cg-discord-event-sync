@@ -71,7 +71,8 @@ if __name__ == '__main__':
 		help='print debugging output')
 	args = parser.parse_args()
 
-
+	if args.debug:
+		logger.setLevel(logging.DEBUG)
 
 	# see https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#connect-strings 
 	db_url = SQLITE_DB_PREFIX + args.database
