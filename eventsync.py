@@ -104,7 +104,7 @@ def get_event_id_from_scheduled_event(event):
 @bot.command()
 async def sync(ctx, *args):
 	logger.info('sync')
-	ctx.send("Syncronizing events...")
+	await ctx.send("Synchronizing events...")
 	with Session(engine) as dbsession:
 		subs = dbsession.query(CalendarSubscription).where(CalendarSubscription.server_id == ctx.message.guild.id).all()
 
@@ -140,6 +140,9 @@ async def sync(ctx, *args):
 
 					logger.debug(component.get('dtstart').dt)
 					await ctx.message.guild.create_scheduled_event(name=component.get('summary'), description=component.get('description'), start_time=component.get('dtstart').dt, end_time=component.get('dtend').dt, entity_type=discord.EntityType.external, location=component.get('location'))
+	logger.debug("done")
+	await ctx.send("Done synchronizing events.")
+
 
 @bot.command(name="list")
 async def list_subs(ctx, *args):
