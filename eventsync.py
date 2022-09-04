@@ -62,7 +62,10 @@ if __name__ == '__main__':
 
 
 	# see https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#connect-strings 
-	engine = create_engine(SQLITE_DB_PREFIX + args.database, future=True)#, echo=True
+	db_url = SQLITE_DB_PREFIX + args.database
+	if args.debug:
+		print(db_url)
+	engine = create_engine(db_url, future=True)#, echo=True
 
 	if args.createdb:
 		mapper_registry.metadata.create_all(engine)
